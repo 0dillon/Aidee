@@ -16,7 +16,7 @@ This is a **new project folder**. The sibling `aide-sdk` and other existing proj
 | Sahara / Intron TTS | Adapter built, direct API smoke tested | Sahara generated audio successfully; Vapi custom voice path still needs a live Vapi call. |
 | NIPOST postcode | Server tool built, awaiting key | Set `NIPOST_API_KEY`; test five real codes and spoken variants. |
 | Outbound worker and retry | Implemented, not live tested | Needs a public deployment, Vapi phone number able to call Nigeria, then callback/no-answer tests. |
-| Dashboard | Built, live Supabase connected | Overview, actions, customers, calls, transcript/tool details, insights and Realtime. Synthetic history script exists but has not been confirmed run. |
+| Dashboard | Built, live Supabase connected | Overview, actions, customers, calls, transcript/tool details, insights and Realtime. Seeded 10 demo customers and 30 synthetic calls. Their transcripts and summaries say `DEMO HISTORY`; aggregate metrics currently include them. |
 | PRD acceptance | **Open** | The required full voice flow has not passed three consecutive live runs. Do not present it as complete. |
 
 The user explicitly chose **Sahara for TTS**. Vapi remains the voice and phone platform. The PRD calls for a **Twilio number imported into Vapi** with Nigeria voice geo permissions.
@@ -40,12 +40,20 @@ npm.cmd run dev:arike
 
 Open `http://localhost:3000` for Aide and `http://localhost:3001` for Arike. The shared demo login is in Supabase Auth. Keep passwords and keys in ignored `.env.local` files. On this machine the local files are already populated for Supabase and Sahara; they are **not in Git**. The Arike environment contains `AIDE_BUSINESS_ID` after connecting Arike in the dashboard. Aide stores the Arike shared secret encrypted in Supabase.
 
-Required Aide server variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_ENCRYPTION_KEY`, `VAPI_WEBHOOK_SECRET`, `AIDE_WORKER_SECRET`, `AIDE_PUBLIC_URL`, `VAPI_API_KEY`, `VAPI_PHONE_NUMBER_ID`, `NIPOST_API_KEY`, `INTRON_API_KEY`. Arike requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_SHARED_SECRET`, `AIDE_BUSINESS_ID`, `AIDE_EVENTS_URL`, `NEXT_PUBLIC_VAPI_PUBLIC_KEY`, `NEXT_PUBLIC_VAPI_ASSISTANT_ID`. Keep all private keys server side; only Vapi's designated public key goes to the browser.
+Required Aide server variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_ENCRYPTION_KEY`, `VAPI_WEBHOOK_SECRET`, `TRIGGER_WORKER_SECRET`, `AIDE_PUBLIC_URL`, `VAPI_API_KEY`, `VAPI_PHONE_NUMBER_ID`, `NIPOST_API_KEY`, `SAHARA_API_KEY`. Arike requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_SHARED_SECRET`, `AIDE_BUSINESS_ID`, `AIDE_EVENTS_URL`, `NEXT_PUBLIC_VAPI_PUBLIC_KEY`, `NEXT_PUBLIC_VAPI_ASSISTANT_ID`. Keep all private keys server side; only Vapi's designated public key goes to the browser.
+
+## Voice and accessibility direction
+
+The user pointed to the existing [`aide-ng.vercel.app`](https://aide-ng.vercel.app/) experience and the local research in `AIDE-VOICE-AND-AGENT-AUDIT.md` and `AIDE-SAHARA-PAIRING-RESEARCH.md`. Those documents describe dropped corrections while an agent is thinking, interruption that only stops playback, and the need to show verified task results. They are research for a different Aide prototype; the hackathon MVP keeps Vapi as specified by its PRD.
+
+The current Arike voice entry stays visible while scrolling, comes first through a skip link, opens by keyboard shortcut **Alt+A**, traps focus in the dialog, returns focus on close, announces real call state, and offers a text path during a call. Vapi SDK transcripts and tool events feed the visible activity. After a person chooses **Start talking**, the call remains open for natural conversation. Browser microphone access still needs a deliberate first user action and permission. The phone route will provide another way in once the Vapi/Twilio number is connected. These affordances need testing with a screen reader and blind participants; a browser accessibility tree check is not that test.
+
+Do not spend more Sahara credits on smoke tests. One direct Sahara request succeeded already; the next audio generation should be for a meaningful live call rehearsal.
 
 ## Test and handoff order
 
 1. Confirm `events` contains the signed order above; run the wrong-signature test and confirm HTTP 401 plus `signature_valid=false` record.
-2. Check whether `scripts/seed-demo.mjs` partially ran during interruption, then finish seeding PRD history. It marks call transcripts and summaries as **DEMO HISTORY**.
+2. The PRD history is seeded: 10 demo customers and 30 `demo-seed-*` calls. Keep demo activity clearly distinguished from live calls during the presentation.
 3. Retrieve/create Vapi private and public keys from the signed-in dashboard. Deploy Aide and Arike to public HTTPS URLs, set runtime env vars, update Arike `AIDE_EVENTS_URL` and the Aide business URLs. Sync the assistant. Verify **eight tools** (six Arike actions plus postcode and follow-up).
 4. Obtain the NIPOST test key from the team; it is intentionally absent from the PRD. Test real postcode, O/0 variant and invalid code.
 5. Import a Twilio number into Vapi; verify Nigeria calling permissions and a short +234 test call. Do not initiate calls to placeholder/demo numbers.

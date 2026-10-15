@@ -37,7 +37,7 @@ const calls = Array.from({length:30},(_,i)=>{
   const started = new Date(now-(30-i)*18*60*60*1000);
   const duration = 54+(i*17)%121;
   const customer = customers[i%customers.length];
-  const rating = outbound ? 3+i%3 : null;
+  const rating = outbound ? 3+Math.floor(i/3)%3 : null;
   const question = questions[i%questions.length];
   const unanswered = i%7===0 ? [gaps[i%gaps.length]] : [];
   return {
