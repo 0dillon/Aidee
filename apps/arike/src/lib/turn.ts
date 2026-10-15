@@ -1,8 +1,8 @@
 type TurnOptions={minSpeechMs?:number;endSilenceMs?:number;maxSpeechMs?:number;minThreshold?:number;floorRatio?:number;playingBoost?:number};
 export type TurnEvent='speech_start'|'barge_in'|'end'|null;
 
-export function createTurnDetector({minSpeechMs=150,endSilenceMs=500,maxSpeechMs=18_000,minThreshold=0.02,floorRatio=3.5,playingBoost=2.5}:TurnOptions={}){
-  let floor=0.01,loudSince=0,speechStarted=0,lastLoud=0,waitForQuiet=false;
+export function createTurnDetector({minSpeechMs=150,endSilenceMs=500,maxSpeechMs=18_000,minThreshold=0.006,floorRatio=2.5,playingBoost=2.5}:TurnOptions={}){
+  let floor=0.002,loudSince=0,speechStarted=0,lastLoud=0,waitForQuiet=false;
   function update(rms:number,now:number,isPlaying=false):TurnEvent{
     const threshold=Math.max(minThreshold,floor*floorRatio)*(isPlaying?playingBoost:1);
     if(rms<=threshold){
