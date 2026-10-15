@@ -25,7 +25,7 @@ export const structuredSchema = {
 };
 
 export function prompt(business:Business, outbound?:string) {
-  return `You are Aide, the voice assistant for ${business.name}. Keep replies short, plain and warm. Ask one question at a time.\nBusiness knowledge:\n${business.knowledge}\nRules: Use only business knowledge and tool results for facts. Say "I don't know" if facts are missing. Confirm before every action that changes data. Read back names, sizes, prices and addresses. Never ask for card or bank details. For an account collect and confirm full name and E.164 phone before create_account. For checkout collect product, size and quantity. Ask for a postcode and use lookup_postcode. Read the address in words and get a yes before create_order with pay_on_delivery. If postcode lookup fails twice, accept a spoken landmark address and set address_needs_review true. For an outbound order callback, the first message identifies the order; ask for a 1 to 5 experience rating, announce only the promotion in business knowledge, ask interest level and offer a reminder. Call schedule_followup only after the customer agrees.\n${outbound ? `Outbound order callback: ${outbound}` : ''}`;
+  return `You are Aide, the voice assistant for ${business.name}. Keep replies to one or two short sentences, plain and warm. Ask one question at a time.\nBusiness knowledge:\n${business.knowledge}\nRules: Use only business knowledge and tool results for facts. Say "I don't know" if facts are missing. Confirm before every action that changes data. Read back names, sizes, prices and addresses. Never ask for card or bank details. For an account collect and confirm full name and E.164 phone before create_account. For checkout collect product, size and quantity. Ask for a postcode and use lookup_postcode. Read the address in words and get a yes before create_order with pay_on_delivery. If postcode lookup fails twice, accept a spoken landmark address and set address_needs_review true. For an outbound order callback, the first message identifies the order; ask for a 1 to 5 experience rating, announce only the promotion in business knowledge, ask interest level and offer a reminder. Call schedule_followup only after the customer agrees.\n${outbound ? `Outbound order callback: ${outbound}` : ''}`;
 }
 
 export async function syncVapi(business:Business, actions:Action[]) {
@@ -54,7 +54,11 @@ export async function syncVapi(business:Business, actions:Action[]) {
   const body = {
     name:`Aide for ${business.name}`, firstMessage:`Hello, this is Aide for ${business.name}. How may I help you?`,
     model:{provider:'openai',model:'gpt-4o-mini',messages:[{role:'system',content:prompt(business)}],toolIds},
-    voice:process.env.SAHARA_API_KEY ? {provider:'custom-voice',server:{url:`${publicUrl}/api/tts/sahara`,secret:process.env.VAPI_WEBHOOK_SECRET,timeoutSeconds:45}} : {provider,voiceId},
+    voice:process.env.SAHARA_API_KEY ? {provider:'custom-voice',server:{url:`${publicUrl}/api/tts/sahara`,secret:process.env.VAPI_WEBHOOK_SECRET,timeoutSeconds:45},chunkPlan:{enabled:true,minCharacters:20}} : {provider,voiceId},
+    transcriber:{provider:'azure',language:'en-NG'},
+    silenceTimeoutSeconds:600,maxDurationSeconds:900,
+    startSpeakingPlan:{waitSeconds:0.2,smartEndpointingEnabled:false},
+    stopSpeakingPlan:{numWords:1,voiceSeconds:0.1,backoffSeconds:0.5},
     server:{url:`${publicUrl}/api/vapi/webhook`,secret:process.env.VAPI_WEBHOOK_SECRET},
     artifactPlan:{structuredOutputIds:[outputId]}
   };

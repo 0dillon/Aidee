@@ -21,3 +21,34 @@
 .aide-sr-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .aide-text-fallback{margin:0 0 14px}.aide-text-fallback label{display:block;font-size:11px;font-weight:700;margin-bottom:7px;color:#6d5d50}.aide-text-fallback>div{display:flex;gap:7px}.aide-text-fallback input{min-width:0;flex:1;border:1px solid #b9aa9a;background:#fffdf9;border-radius:6px;padding:11px 13px;font-size:13px}.aide-text-fallback button{border:0;border-radius:6px;background:#79523c;color:white;padding:0 16px;font-size:12px;font-weight:700}.aide-text-fallback button:disabled{opacity:.5}
 @media(max-width:560px){.voice-wrap{right:16px;bottom:16px}.voice-button{padding:10px 12px}.aide-panel{width:100%}}
+/* The voice companion sits beside the page so a customer can continue shopping. */
+.aide-backdrop{inset:auto 24px 88px auto;background:transparent;display:block;pointer-events:none;animation:none;z-index:35}
+.aide-panel{width:min(380px,calc(100vw - 32px));height:auto;max-height:min(650px,calc(100vh - 115px));border-radius:23px;border:1px solid #d6c4b5;box-shadow:0 22px 70px #25171338;pointer-events:auto;animation:aide-rise .35s cubic-bezier(.2,.8,.2,1)}
+.aide-panel-top{padding:17px 19px}.aide-ident-mark{width:35px;height:35px;border-radius:12px;font-size:21px}.aide-ident strong{font-size:21px}.aide-ident small{font-size:8px;margin-top:5px}.aide-close{width:33px;height:33px}
+.aide-stage{min-height:0;flex:0 0 auto;padding:20px 20px 17px;background:radial-gradient(circle at 50% 22%,#f8e5d6,#f4f0e9 58%)}
+.aide-orbit{width:104px;height:104px;margin-bottom:14px}.aide-orbit .ring-two{inset:10px}.aide-orbit-core{width:70px;height:70px;box-shadow:inset -9px -11px 19px #612f2444,0 14px 27px #8d493d36}.aide-orbit-core span{font-size:30px}.aide-stage h2{font-size:27px;margin:8px 0 6px}.aide-stage p{font-size:12px}.aide-phase-kicker{font-size:9px}.aide-wave{margin-top:9px;height:20px}.aide-conversation{max-height:150px;padding:12px 18px}.aide-panel-bottom{padding:14px 18px 18px}.aide-privacy{font-size:10px;line-height:1.4;margin-bottom:10px}.aide-start,.aide-end{padding:12px 15px}.aide-error{margin:0 18px 10px}.voice-button.on-call{background:#723e30;border-color:#723e30}.voice-button.on-call .voice-button-mark{background:#f0c69f}
+@keyframes aide-rise{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:560px){.aide-backdrop{right:12px;left:12px;bottom:78px}.aide-panel{width:100%;max-height:min(600px,calc(100vh - 102px))}}
+.aide-glyph{display:flex!important;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;animation:none!important}.aide-glyph i{width:3px;height:12px;background:currentColor;border-radius:9px}.aide-glyph i:nth-child(2),.aide-glyph i:nth-child(4){height:20px}.aide-glyph i:nth-child(3){height:29px}.aide-orbit-core .aide-glyph{color:#ffe4ca}.aide-orbit-core .aide-glyph i{width:4px}.aide-orbit-core .aide-glyph i:nth-child(2),.aide-orbit-core .aide-glyph i:nth-child(4){height:30px}.aide-orbit-core .aide-glyph i:nth-child(3){height:43px}
+.aide-controls{display:flex;gap:6px;margin-bottom:12px}.aide-controls button{flex:1;border:1px solid #c8b7a7;background:#fffaf4;color:#42352d;border-radius:8px;padding:9px 3px;font-size:11px;font-weight:750}.aide-controls button:hover{background:#eadbcf}.aide-controls button:disabled{opacity:.45}.aide-controls button[aria-pressed=true]{background:#6d4232;color:white}
+/* Portable Aide identity: deep indigo, soft lilac and a bright listening signal. */
+.voice-button,.voice-button:hover{background:#24204b;border-color:#24204b;color:#fff;box-shadow:0 13px 36px #201b4d4d}.voice-button{border-radius:18px;padding:11px 12px 11px 13px}.voice-button:hover{background:#332a70;border-color:#332a70}.voice-button-mark{background:#c8f0c7}.voice-button-mark span{background:#26234d}.voice-button-arrow{background:#ffffff1c}.voice-button.on-call{background:#4b377d;border-color:#4b377d}.voice-button.on-call .voice-button-mark{background:#a9efcc}
+.aide-panel{background:#f8f6fc;border-color:#dcd5ee;box-shadow:0 22px 70px #21163b3e}.aide-panel-top,.aide-panel-bottom{background:#f8f6fc;border-color:#e5dfec}.aide-ident-mark{background:#24204b;color:#c8f0c7}.aide-ident small{color:#786b92}.aide-close{border-color:#d6cee5;color:#3f315c}.aide-stage{background:radial-gradient(circle at 50% 18%,#e5dbff,#f8f6fc 61%)}.aide-orbit-ring{border-color:#b7a4e4}.aide-orbit-core{background:radial-gradient(circle at 25% 22%,#bca8f3,#6350a6 62%,#2f285a);box-shadow:inset -9px -12px 20px #271d5d4d,0 15px 30px #5945a551}.aide-orbit-core .aide-glyph{color:#d3ffd8}.aide-phase-kicker{color:#6c52ac}.aide-stage h2{color:#292042}.aide-stage p,.aide-privacy{color:#635975}.aide-wave i{background:#7054ad}.aide-conversation{border-color:#e5dfec}.aide-line{background:#fff}.aide-line.you{background:#eae4f6}.aide-line.action{background:#edf7ed;border-color:#c8ddca}.aide-line span{color:#5d47a0}.aide-start{background:#24204b;color:#fff}.aide-start:hover{background:#4d3c8a}.aide-end{background:#e9e1f3;color:#4b3674}.aide-controls button{border-color:#d5cae6;background:#fff;color:#3c315d}.aide-controls button:hover{background:#eae4f6}.aide-controls button[aria-pressed=true]{background:#3d326d;color:white}.aide-text-fallback input{border-color:#bfb2d5}.aide-text-fallback button{background:#51408a}
+
+/* Larger, readable conversation */
+.aide-panel{width:min(560px,calc(100vw - 32px));height:min(780px,calc(100vh - 110px));max-height:none}
+.aide-stage{flex:0 0 auto;padding:14px 20px 10px}
+.aide-conversation{flex:1 1 auto;min-height:220px;max-height:none;padding:16px 20px;gap:14px}
+.aide-line{max-width:94%;padding:12px 16px}
+.aide-line span{font-size:12px}
+.aide-line p{font-size:18px;line-height:1.5;margin:5px 0 0}
+@media(max-width:560px){.aide-panel{width:100%;height:calc(100vh - 100px)}.aide-conversation{min-height:160px}.aide-line p{font-size:17px}}
+
+.aide-heard{margin:0;padding:8px 20px;font-size:14px;font-weight:600;color:#5d47a0;background:#f1ecf9;border-top:1px solid #e0d8f0}
+
+/* Once talking, the transcript gets the room */
+.aide-panel.has-lines .aide-orbit,.aide-panel.has-lines .aide-stage p,.aide-panel.has-lines .aide-wave,.aide-panel.has-lines .aide-phase-kicker{display:none}
+.aide-panel.has-lines .aide-stage{padding:10px 20px}
+.aide-panel.has-lines .aide-stage h2{font-size:22px;margin:0}
+.aide-panel.has-lines .aide-conversation{min-height:0}
+.aide-panel.has-lines .aide-line p{font-size:20px}

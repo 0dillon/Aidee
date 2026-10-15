@@ -13,7 +13,8 @@ export default function Shop({products}:{products:Product[]}) {
     event.preventDefault();if(!selected||!size)return;setBusy(true);setError('');
     try {const response=await fetch('/api/store/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...form,items:[{product_id:selected.id,size,qty:quantity}]})});
       const payload=await response.json(); if(!response.ok) throw new Error(payload.error||'Order failed');
-      setResult(`Order ${payload.order_id} placed. Total ${money(payload.total)} on delivery. Estimated delivery: ${payload.estimated_delivery}.`);
+      setResult(`Order ${payload.order_id} placed. Total ${money(payload.total)} on delivery. Estimated delivery: ${payload.estimated_delivery}. Aide will call you in a few seconds about your order.`);
+      window.dispatchEvent(new CustomEvent('aide-callback',{detail:{name:form.full_name,phone:form.phone,order_id:payload.order_id,items:`${selected.name}, size ${size}, quantity ${quantity}`,total:String(payload.total),estimated_delivery:payload.estimated_delivery}}));
       setSelected(null);
     } catch(cause) {setError(cause instanceof Error?cause.message:'Order failed');}finally{setBusy(false);}
   }

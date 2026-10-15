@@ -1,36 +1,47 @@
 # Aide hackathon MVP
 
-Aide gives Arike Pre-order a voice. Customers can call or use the site button to ask questions, create an account, shop and order. Arike sends signed order events to Aide; Aide starts a callback and turns calls into dashboard insights.
+Aide gives a business a voice for the customers who struggle most with screens: blind and low-vision people, low-literacy and elderly users. Customers talk to the business's site or phone line; Aide can also call them. The intended calls are **onboarding blind customers** (guided account set-up and a tour of the product) and **fraud and verification calls** of the kind a bank makes to its customers. Every call is recorded as structured data on a business dashboard.
 
-This is a **new project folder**. The sibling `aide-sdk` and other existing projects were not changed. The governing specification is `C:\Users\HomePC\Downloads\Aide PRD.md`.
+The demo business is **Arike Pre-order**, a small clothing storefront. The governing specification is `Aide PRD.md` (kept outside this repository).
 
-## Current status — 15 October 2026
+> **Honest status, 15 October 2026.** The browser voice assistant on the Arike site works for simple product questions and can run account and order actions through a language model. It is **not fast** and **not reliably accurate on Nigerian-accented speech**. The onboarding and fraud calls are **not built**. Only the PRD's order-callback script exists, and it has been type-checked but **never run end to end**. The PRD acceptance test (full flow, three live runs in a row) has **not** been passed. Nothing here is production-ready, and it has not been tested with blind users or screen readers.
 
-| PRD area | Status | Evidence / remaining work |
+## What works, what does not
+
+| Area | State | Evidence |
 | --- | --- | --- |
-| Arike storefront and six actions | Built, locally tested | Three Supabase products render; a browser order saved to `arike_orders`. Manifest imports six actions. |
-| Aide business connection | Built, locally tested | Demo Supabase Auth login works; Arike connected, knowledge imported, trigger saved. |
-| Signed event path | Built, locally tested | Second browser order `ARI-A567CC21` created an `order.placed` event with `signature_valid=true` and an Aide customer. |
-| Vapi tools and webhook | Implemented, not live tested | Need Vapi keys, public Aide URL, assistant sync and live call rehearsal. |
-| Web voice surface | Built, visual interaction tested | Opens a motion panel and listens to SDK transcript/tool events. Actual audio call awaits Vapi configuration. |
-| Sahara / Intron TTS | Adapter built, direct API smoke tested | Sahara generated audio successfully; Vapi custom voice path still needs a live Vapi call. |
-| NIPOST postcode | Server tool built, awaiting key | Set `NIPOST_API_KEY`; test five real codes and spoken variants. |
-| Outbound worker and retry | Implemented, not live tested | Needs a public deployment, Vapi phone number able to call Nigeria, then callback/no-answer tests. |
-| Dashboard | Built, live Supabase connected | Overview, actions, customers, calls, transcript/tool details, insights and Realtime. Seeded 10 demo customers and 30 synthetic calls. Their transcripts and summaries say `DEMO HISTORY`; aggregate metrics currently include them. |
-| PRD acceptance | **Open** | The required full voice flow has not passed three consecutive live runs. Do not present it as complete. |
+| Arike storefront, six actions, signed `order.placed` event | Works locally | Orders saved to Supabase; events stored with valid signatures (earlier session). |
+| Aide dashboard (calls, customers, insights) and Supabase schema | Built, local | Seeded with 10 labelled demo customers and 30 `DEMO HISTORY` calls; aggregate metrics include them. |
+| Web voice assistant (Arike site) | **Partly works, slow** | Heard a real spoken sentence and answered it once; the typed path with tool use works (product sizes, account policy). Short follow-up replies were being wrongly discarded by an echo filter; fixed but **not re-tested by voice**. |
+| Hearing Nigerian accents | **Not solved** | A real utterance was heard as "Thank you, T-shirt" by Whisper; Sahara English gave similar results on a tiny sample; Sahara's code-switched settings (`yo`, `ig`) returned wrong-language text. Not a benchmark. The answering model is told to recover misheard product names, which helps but is not recognition. |
+| Speed | **Poor, and uneven** | Same request took 0.8 s to 16.8 s depending on the moment. Sahara voice takes about 8 to 14 s to generate a new sentence; repeated sentences are cached (about 0.06 s). Everything runs on a home connection through no hosted server. |
+| Order callback (browser fallback) | Written, **untested** | After an order, Aide opens a call about 15 s later, asks for a 1 to 5 rating, announces the promo, asks interest and offers a reminder. Call, tool calls, follow-up and AI-extracted insights are written to Aide's `calls`, `tool_calls`, `followups` tables. Type-checked only. Whether web calls appear correctly on the dashboard is **unverified**. |
+| Onboarding call for blind users | **Not built** | |
+| Fraud / verification call (safe phrase, keypad PIN, unusual-activity rules) | **Not built** | PRD "Buildout" item 5. |
+| Phone calling (Vapi + Twilio) | **Not working** | No phone number; Vapi's free numbers are US-only. The Vapi assistant was synced and spoke, but in the browser the voice was reported as static (Aide's own generated audio measured clean) and calls hung up, so the web voice no longer uses Vapi. Phone, outbound worker and retry remain untested. |
+| NIPOST postcode lookup | **Missing** | `NIPOST_API_KEY` is not available. The browser agent takes a spoken address and marks the order `address_needs_review`. |
+| Accessibility | Built, **untested with users** | Skip link, Alt+A shortcut, focus trap, spoken failure messages, text input. A browser accessibility tree check is not a screen-reader or blind-user test. |
 
-The user explicitly chose **Sahara for TTS**. Vapi remains the voice and phone platform. The PRD calls for a **Twilio number imported into Vapi** with Nigeria voice geo permissions.
+## How the web voice works
+
+`apps/arike/src/app/VoiceButton.tsx`
+
+1. The browser records the microphone and a turn detector decides when you stopped speaking.
+2. `/api/stt` transcribes it with Groq Whisper (`GROQ_API_KEY`); without that key it falls back to Sahara (`SAHARA_API_KEY`).
+3. `/api/voice/chat` sends the conversation to a language model (default DeepSeek) with Arike's actions as tools, streams short sentences back, and logs the call.
+4. `/api/voice/tts` speaks each sentence with Sahara in a male English voice; sentences are fetched ahead and cached.
+
+Typing is always available as a fallback. Aide says aloud when it did not catch you or cannot reach the microphone.
 
 ## Layout
 
-- `apps/aide` — Next.js dashboard, business API, Vapi tool router, webhook and Sahara TTS adapter (port 3000).
-- `apps/arike` — Next.js storefront, Aide manifest/action endpoints, signed order event and voice button (port 3001).
-- `supabase/schema.sql` — database schema and three Arike products. Already applied to Supabase project `brqqpnbhqzhcxngnvavn`.
-- `worker/worker.mjs` — event dispatcher and outbound retry worker.
-- `scripts/sahara-smoke.mjs` — direct Sahara TTS check.
-- `scripts/seed-demo.mjs` — idempotent, visibly labelled synthetic history (10 customers, 30 calls). Run only after checking whether an interrupted attempt left partial records.
+- `apps/aide`: Next.js dashboard, business API, Vapi tool router and webhook, Sahara voice adapter for Vapi (port 3000).
+- `apps/arike`: Next.js storefront, Aide manifest and action endpoints, the browser voice assistant and call logging (port 3001).
+- `supabase/schema.sql`: schema, applied to the project.
+- `worker/worker.mjs`: event dispatcher and outbound retry worker (not run in recent sessions).
+- `scripts/`: Sahara smoke test, idempotent demo seed.
 
-## Local start
+## Run locally
 
 ```powershell
 npm.cmd install --ignore-scripts
@@ -38,25 +49,25 @@ npm.cmd run dev:aide
 npm.cmd run dev:arike
 ```
 
-Open `http://localhost:3000` for Aide and `http://localhost:3001` for Arike. The shared demo login is in Supabase Auth. Keep passwords and keys in ignored `.env.local` files. On this machine the local files are already populated for Supabase and Sahara; they are **not in Git**. The Arike environment contains `AIDE_BUSINESS_ID` after connecting Arike in the dashboard. Aide stores the Arike shared secret encrypted in Supabase.
+Aide: `http://localhost:3000`. Arike: `http://localhost:3001`. Use **Chrome-based browser in a foreground tab** for voice; background tabs cannot capture the microphone.
 
-Required Aide server variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_ENCRYPTION_KEY`, `VAPI_WEBHOOK_SECRET`, `TRIGGER_WORKER_SECRET`, `AIDE_PUBLIC_URL`, `VAPI_API_KEY`, `VAPI_PHONE_NUMBER_ID`, `NIPOST_API_KEY`, `SAHARA_API_KEY`. Arike requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_SHARED_SECRET`, `AIDE_BUSINESS_ID`, `AIDE_EVENTS_URL`, `NEXT_PUBLIC_VAPI_PUBLIC_KEY`, `NEXT_PUBLIC_VAPI_ASSISTANT_ID`. Keep all private keys server side; only Vapi's designated public key goes to the browser.
+Arike server variables (`apps/arike/.env.local`, never committed): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AIDE_SHARED_SECRET`, `AIDE_BUSINESS_ID`, `AIDE_EVENTS_URL`, `NEXT_PUBLIC_SITE_URL`, `SAHARA_API_KEY`, `SAHARA_TTS_GENDER`, `SAHARA_TTS_ACCENT`, `GROQ_API_KEY`, `VOICE_LLM_API_KEY` (plus optional `VOICE_LLM_BASE_URL`, `VOICE_LLM_MODEL`), `STT_COMPARE=1` only for diagnostics (runs every recognizer on each sentence and spends credits).
 
-## Voice and accessibility direction
+Aide server variables are listed in `apps/aide/.env.example`.
 
-The user pointed to the existing [`aide-ng.vercel.app`](https://aide-ng.vercel.app/) experience and the local research in `AIDE-VOICE-AND-AGENT-AUDIT.md` and `AIDE-SAHARA-PAIRING-RESEARCH.md`. Those documents describe dropped corrections while an agent is thinking, interruption that only stops playback, and the need to show verified task results. They are research for a different Aide prototype; the hackathon MVP keeps Vapi as specified by its PRD.
+## Known problems and risks
 
-The current Arike voice entry stays visible while scrolling, comes first through a skip link, opens by keyboard shortcut **Alt+A**, traps focus in the dialog, returns focus on close, announces real call state, and offers a text path during a call. Vapi SDK transcripts and tool events feed the visible activity. After a person chooses **Start talking**, the call remains open for natural conversation. Browser microphone access still needs a deliberate first user action and permission. The phone route will provide another way in once the Vapi/Twilio number is connected. These affordances need testing with a screen reader and blind participants; a browser accessibility tree check is not that test.
+- **Credits:** each spoken turn spends a speech-recognition request, a model call and one or more Sahara voice requests. Sahara timed out often during testing.
+- **Open endpoints:** the Arike voice endpoints have no sign-in. They check the request origin and apply a simple in-memory rate limit. Do not expose them publicly as they are.
+- **Fraud and bank use needs far more:** a bank-grade fraud call needs mutual authentication, safe phrase, keypad PIN capture, consent and recording notices, and audit logs. None exist.
+- **Hosting:** the app has only run on a developer laptop. A hosted deployment is the most likely fix for the speed problem and has not been done.
+- **Keys:** any key that was pasted into a chat or terminal should be rotated.
 
-Do not spend more Sahara credits on smoke tests. One direct Sahara request succeeded already; the next audio generation should be for a meaningful live call rehearsal.
+## Next steps, in order
 
-## Test and handoff order
-
-1. Confirm `events` contains the signed order above; run the wrong-signature test and confirm HTTP 401 plus `signature_valid=false` record.
-2. The PRD history is seeded: 10 demo customers and 30 `demo-seed-*` calls. Keep demo activity clearly distinguished from live calls during the presentation.
-3. Retrieve/create Vapi private and public keys from the signed-in dashboard. Deploy Aide and Arike to public HTTPS URLs, set runtime env vars, update Arike `AIDE_EVENTS_URL` and the Aide business URLs. Sync the assistant. Verify **eight tools** (six Arike actions plus postcode and follow-up).
-4. Obtain the NIPOST test key from the team; it is intentionally absent from the PRD. Test real postcode, O/0 variant and invalid code.
-5. Import a Twilio number into Vapi; verify Nigeria calling permissions and a short +234 test call. Do not initiate calls to placeholder/demo numbers.
-6. Start the worker, run the PRD end-to-end plan in order, then three consecutive full rehearsals and record the backup video. Measure response and tool latency.
-
-Use `npm.cmd run build -w apps/aide` and `npm.cmd run build -w apps/arike` before pushing. The latter passed after the voice surface update. Do not commit `.env.local`, credentials or recordings. Use Git author email `uhumaghodavid@gmail.com` as requested by the user.
+1. Run the order-callback end to end in a foreground browser and confirm it appears on the dashboard.
+2. Replace the callback script with an **onboarding** script and a **fraud verification** script; define safe phrase and escalation rules.
+3. Host Aide and Arike on a fast host, then re-measure speed.
+4. Record real, scripted Nigerian-accented sentences with known transcripts and score recognizers on them before choosing one.
+5. Obtain a phone number for Vapi (Twilio trial can call only verified numbers) and test the phone path.
+6. Test with blind users and screen readers.
