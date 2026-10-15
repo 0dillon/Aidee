@@ -11,7 +11,7 @@ The product follows the Aide Hackaholics PRD. The team pilot uses Arike as one e
 - Supabase schema, authentication, signed business events, action routing, call logging, Vapi webhooks and Sahara TTS adapter are in place.
 - The Arike widget now stays visible, describes its controls to screen readers, offers page-aware text prompts without opening the microphone or requesting Sahara audio, and only starts voice after the customer chooses **Talk now**. It announces microphone state and gives one spoken recovery prompt when an explicitly started session hears no speech. Idle visits and text-only help do not spend Sahara credits. Product facts passed to Aide come from the current storefront catalogue.
 - Checkout follows the PRD: confirmed product, size, quantity and delivery details; pay on delivery only. No card or bank details are collected.
-- Browser voice is still under active integration and must be rehearsed with a real web call before it is presented as working. Phone calls need a configured Twilio number in Vapi. Nigerian speech recognition and the complete PRD onboarding and verification flows are not yet accepted.
+- Browser voice is still under active integration and must be rehearsed with a real web call before it is presented as working. The PRD uses Vapi for phone calls; Twilio is not a PRD requirement, and this Vapi account currently has no connected phone number. A Voicebip phone test is being evaluated separately; see [phone test status](docs/PHONE-CALL-STATUS.md). Nigerian speech recognition and the complete PRD onboarding and verification flows are not yet accepted.
 - Sahara TTS was smoke tested once. Do not run repeated voice tests without a specific need because each call spends credits.
 
 ## Connect a business
@@ -51,7 +51,7 @@ The business manifest format used by the sample integration is defined in `apps/
 
 1. Rehearse the Arike widget with a real microphone and screen reader: permission granted/denied, low-volume speech, silence recovery, interruption, repeat, mute and typing fallback. Do not repeat paid Sahara calls unnecessarily.
 2. Finish the Aide browser voice call and confirm transcripts and actions are logged correctly.
-3. Connect the Twilio number to Vapi and test inbound and outbound phone calls.
+3. Resolve the Voicebip phone test described in [phone test status](docs/PHONE-CALL-STATUS.md). Confirm real ringing and two-way audio before integrating a replacement phone provider with Aide's actions, events and call records; otherwise connect a suitable carrier number to Vapi.
 4. Validate the onboarding and safe verification flows required by the PRD.
 5. Run the PRD acceptance flow several times, with Nigerian speakers and blind/low vision users.
 6. Publish the external worker and verify callback timing on a hosted business integration.
