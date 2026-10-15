@@ -1,0 +1,11 @@
+{
+  "name": "aide-hackathon",
+  "private": true,
+  "workspaces": ["apps/aide", "apps/arike"],
+  "scripts": {
+    "dev:aide": "npm run dev -w apps/aide",
+    "dev:arike": "npm run dev -w apps/arike",
+    "build": "npm run build -w apps/aide && npm run build -w apps/arike",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
