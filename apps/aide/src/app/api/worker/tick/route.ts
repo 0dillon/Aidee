@@ -1,6 +1,7 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {db} from '@/lib/db';
 import {startOutbound} from '@/lib/outbound';
+import {syncBimpeCalls} from '@/lib/bimpe-calls';
 import type {Business} from '@/lib/vapi';
 
 export async function POST(request:NextRequest) {
@@ -16,5 +17,6 @@ export async function POST(request:NextRequest) {
       outcomes.push({event_id:event.id,...result});
     } catch(error) {outcomes.push({event_id:event.id,error:error instanceof Error?error.message:'Failed'});}
   }
-  return NextResponse.json({processed:outcomes});
+  const calls=await syncBimpeCalls().catch(error=>({error:error instanceof Error?error.message:'Call sync failed'}));
+  return NextResponse.json({processed:outcomes,calls});
 }

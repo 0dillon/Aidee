@@ -7,7 +7,8 @@ The product follows the Aide Hackaholics PRD. The team pilot uses Arike as one e
 ## Current state
 
 - The Aide owner dashboard supports a business name, public website URL, API base URL, and encrypted shared secret. Owners can edit those details, import their own manifest, configure verified knowledge and an order callback, and sync the assistant to Vapi.
-- Explicitly seeded demo customers and calls were removed from Supabase. Localhost sample businesses are hidden from the owner workspace; it starts clean until a public business is connected.
+- Dashboard customers, calls, metrics, and charts use persisted business activity only. Generated customer/call history is not shown or seeded; historical insights fill as real calls arrive. Localhost sample businesses are hidden from the owner workspace.
+- The dashboard shows the promotion interest split on Overview, weekly promotion interest in Insights, customer order counts, and each call's phone/web channel.
 - Supabase schema, authentication, signed business events, action routing, call logging, Vapi webhooks and Sahara TTS adapter are in place.
 - The Arike widget now stays visible, describes its controls to screen readers, offers page-aware text prompts without opening the microphone or requesting Sahara audio, and only starts voice after the customer chooses **Talk now**. It announces microphone state and gives one spoken recovery prompt when an explicitly started session hears no speech. Idle visits and text-only help do not spend Sahara credits. Product facts passed to Aide come from the current storefront catalogue.
 - Checkout follows the PRD: confirmed product, size, quantity and delivery details; pay on delivery only. No card or bank details are collected.

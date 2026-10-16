@@ -19,13 +19,13 @@ export async function GET() {
       db<Record<string,any>[]>('calls',{query:`business_id=eq.${id}&select=*&order=created_at.desc&limit=100`}),
       db('followups',{query:`business_id=eq.${id}&select=*&order=due_date.asc`})
     ]);
-    // Synthetic setup history stays useful for internal rehearsal, but must never appear as an owner's real activity.
+    // Never present generated rehearsal data as customer activity.
     const customers=allCustomers.filter(c=>!String(c.external_id||'').startsWith('demo-seed-'));
     const calls=allCalls.filter(c=>!String(c.vapi_call_id||'').startsWith('demo-seed-'));
     const ids=calls.map(c=>c.id);
     const toolCalls=ids.length?await db('tool_calls',{query:`call_id=in.(${ids.join(',')})&select=*&order=created_at.asc`}):[];
-    const today=new Date().toISOString().slice(0,10);
-    const recent=calls.filter(c=>String(c.started_at||c.created_at).startsWith(today));
+    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const recent=calls.filter(c=>new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(c.started_at||c.created_at))===today);
     const ratings=calls.map(c=>Number(c.structured_data?.rating)).filter(n=>n>=1&&n<=5);
     const metrics={calls_today:recent.length,inbound:recent.filter(c=>c.direction==='inbound').length,
       outbound:recent.filter(c=>c.direction==='outbound').length,

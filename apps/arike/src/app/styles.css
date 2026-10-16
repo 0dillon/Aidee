@@ -85,6 +85,19 @@
 @media(max-height:720px) and (min-width:561px){.aide-backdrop{bottom:10px;height:min(690px,calc(100dvh - 20px))}.aide-stage{padding:10px 20px 8px}.aide-orbit{width:104px;height:104px;margin-bottom:7px}.aide-orbit-core{width:74px;height:74px}.aide-stage h2{font-size:21px}.aide-quick-help{gap:6px;padding:0 16px 10px}.aide-quick-help button{min-height:38px}.aide-panel-bottom{padding:10px 15px 12px}.aide-text-fallback{margin-bottom:7px}.aide-text-fallback input{min-height:39px}.aide-start,.aide-end{min-height:41px}}
 @media(prefers-reduced-motion:reduce){.aide-invite,.aide-orbit-ring,.aide-orbit-core{animation:none!important}.aide-quick-help button,.voice-button{transition:none}}
 
+/* Real catalog photography, with product facts still coming from Supabase. */
+.product-visual{isolation:isolate;background-color:#d8c8b5}
+.product-shape{display:none}
+.product-photo{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.product-visual:hover .product-photo{transform:scale(1.035)}
+.product-visual:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#20181255 0%,transparent 25%,transparent 72%,#20181266 100%)}
+.product-number,.product-badge{z-index:2}
+.product-number{color:#fff;text-shadow:0 1px 8px #0008}
+.product-badge{padding:7px 9px;background:#fffef0e8;color:var(--ink)}
+.modal-product-photo{display:block;width:calc(100% + 84px);height:230px;margin:-34px -42px 27px;object-fit:cover;object-position:center 31%;background:#d8c8b5}
+@media(max-width:560px){.product-visual{aspect-ratio:4/5}}
+@media(max-width:560px){.modal-product-photo{width:calc(100% + 40px);height:190px;margin:-25px -20px 22px}}
+
 /* Keep Aide easy to find without making an idle visit spend voice credits. */
 .voice-button,.voice-button:hover{min-height:66px;min-width:190px;padding:10px 12px;border:1px solid #49356d;border-radius:22px;background:linear-gradient(112deg,#282044,#47316e 72%,#624276);box-shadow:0 16px 42px #21163855;color:#fff}
 .voice-button:hover{transform:translateY(-3px);box-shadow:0 20px 48px #21163866}
