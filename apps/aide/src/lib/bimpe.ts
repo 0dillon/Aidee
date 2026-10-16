@@ -35,13 +35,17 @@ export async function makeBimpeCall(agentId:string, destination:string) {
 export const getBimpeCall = (agentId:string, callId:string) => bimpe<BimpeCall>(`/agents/${agentId}/calls/${callId}`,'GET');
 export const listBimpeCalls = (agentId:string) => bimpe<BimpeCall[]>(`/agents/${agentId}/calls?limit=25&sort=-created_on`,'GET');
 
-type Param = {name:string;type:string;description:string;required?:boolean};
+type Param = {name:string;type:string;description:string;required?:boolean;items?:Param;properties?:Record<string,unknown>};
+const typeOf = (def:any) => Array.isArray(def?.type) ? def.type.find((t:string)=>t!=='null')||'string' : def?.type||'string';
+function toParam(name:string, def:any, required?:boolean):Param {
+  const param:Param = {name, type:typeOf(def), description:def?.description||name, required};
+  if (param.type==='array') param.items = toParam('item', def?.items||{type:'string'});
+  if (param.type==='object' && def?.properties) param.properties = def.properties;
+  return param;
+}
 function toParams(schema:Record<string,any>):Param[] {
   const required = new Set<string>(Array.isArray(schema?.required) ? schema.required : []);
-  return Object.entries<any>(schema?.properties||{}).map(([name,def])=>({
-    name, type:Array.isArray(def?.type)?def.type.find((t:string)=>t!=='null')||'string':def?.type||'string',
-    description:def?.description||name, required:required.has(name)
-  }));
+  return Object.entries<any>(schema?.properties||{}).map(([name,def])=>toParam(name,def,required.has(name)));
 }
 
 const NATIVE_TOOLS = [
