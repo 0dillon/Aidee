@@ -4,9 +4,32 @@ Aide gives businesses a voice assistant customers can use on their website or by
 
 The product follows the Aide Hackaholics PRD. The team pilot uses Arike as one example integration; Aide is not tied to Arike.
 
+## For judges
+
+**Aide makes any website or app voice-native.** Customers talk to the app and the app talks back, so blind, visually impaired and low-literacy people can use services that assume they can see and read. Every call becomes structured data for the business.
+
+**Try it**
+- Dashboard: https://aide-voice.vercel.app (the demo login is given to judges by the team, it is not stored in this repo).
+- Open **Call a number**, enter a phone number and press **Call now**. Aide rings it and holds the conversation by voice.
+- The sample business is **Wear Arike**, a clothing pre-order shop (https://arike-wema-shop.vercel.app). It is connected through its action manifest, so Aide can create accounts, search products, check delivery and place pay-on-delivery orders by voice.
+- Open **Customers** and **Calls** to see accounts created and call status and transcripts for each call.
+
+**How it works**
+- Phone calls run on Bimpe (api.bimpe.ai). Aide places calls through its API and imports status and transcripts.
+- Bimpe calls Aide's tool endpoint, `POST /api/bimpe/tools/{name}`, to run business actions. The endpoint is protected by a bearer secret.
+- Any business plugs in by publishing `GET /api/aide/manifest`. Aide imports the actions and gives them to the voice agent as tools.
+- The agent prompt is written for listening only: short sentences, amounts in words, numbers one digit at a time, and a clear yes before anything that changes data. For unusual requests it slows down and confirms twice.
+
+**What is verified and what is not**
+- Verified live: Aide places a real phone call through Bimpe, the call is answered, and the agent speaks. The business actions are synced and the tool endpoint returns real catalog data.
+- Not yet shown end to end: voice onboarding creating an account during a live call. This is the next thing to rehearse.
+- Not built: identity verification (BVN, safe phrase, PIN keypad), real payments, and bank connectors. The same manifest approach is how a bank would connect.
+- Call logging relies on polling Bimpe about once a minute, so the dashboard can lag. Browser voice on the Arike site still uses Vapi and Sahara.
+- Phone minutes are limited, so please do not place long test calls.
+
 ## Current state
 
-- The Aide owner dashboard supports a business name, public website URL, API base URL, and encrypted shared secret. Owners can edit those details, import their own manifest, configure verified knowledge and an order callback, and sync the assistant to Vapi.
+- The Aide owner dashboard supports a business name, public website URL, API base URL, and encrypted shared secret. Owners can edit those details, import their own manifest, configure verified knowledge and an order callback, and sync the assistant's tools and knowledge to Bimpe (phone) or Vapi (browser voice).
 - Dashboard customers, calls, metrics, and charts use persisted business activity only. Generated customer/call history is not shown or seeded; historical insights fill as real calls arrive. Localhost sample businesses are hidden from the owner workspace.
 - The dashboard shows the promotion interest split on Overview, weekly promotion interest in Insights, customer order counts, and each call's phone/web channel.
 - Supabase schema, authentication, signed business events, action routing, call logging, Vapi webhooks and Sahara TTS adapter are in place.
@@ -52,7 +75,7 @@ The business manifest format used by the sample integration is defined in `apps/
 
 1. Rehearse the Arike widget with a real microphone and screen reader: permission granted/denied, low-volume speech, silence recovery, interruption, repeat, mute and typing fallback. Do not repeat paid Sahara calls unnecessarily.
 2. Finish the Aide browser voice call and confirm transcripts and actions are logged correctly.
-3. Resolve the Voicebip phone test described in [phone test status](docs/PHONE-CALL-STATUS.md). Confirm real ringing and two-way audio before integrating a replacement phone provider with Aide's actions, events and call records; otherwise connect a suitable carrier number to Vapi.
+3. Phone calling now runs on Bimpe; see [Bimpe setup](docs/BIMPE-SETUP.md) and [demo plan](docs/DEMO-PLAN.md). The older [Voicebip phone test notes](docs/PHONE-CALL-STATUS.md) are kept for history. Rehearse onboarding and the order callback on a real handset before presenting them as working.
 4. Validate the onboarding and safe verification flows required by the PRD.
 5. Run the PRD acceptance flow several times, with Nigerian speakers and blind/low vision users.
 6. Publish the external worker and verify callback timing on a hosted business integration.
